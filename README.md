@@ -1,2 +1,4 @@
 # NodejsApiAuthentication
-Repo cho khóa học xây dựng Node.js API cho người mới bắt đầu được chia sẻ trên kênh RHP Team Youtube.
+check lại file .env
+tẹ tạo project trên console google cloud
+lấy clientId với client Secret 
