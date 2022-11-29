@@ -6,14 +6,18 @@ const express = require("express");
 const logger = require("morgan");
 const mongoClient = require("mongoose");
 const cors = require("cors");
+const { Database } = require("./configs");
 
 // setup connect mongodb by mongoose
 mongoClient
-  .connect("mongodb://0.0.0.0/nodejsapistarter", {
-    useCreateIndex: true,
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect(
+    `mongodb+srv://todoApp:${Database}@atlascluster.vnmjcyr.mongodb.net/test`,
+    {
+      useCreateIndex: true,
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    }
+  )
   .then(() => console.log("✅ Connected database from mongodb."))
   .catch((error) =>
     console.error(`❌ Connect database is failed with error which is ${error}`)
@@ -24,6 +28,7 @@ const app = express();
 //const deckRoute = require("./routes/deck");
 const userRoute = require("./routes/user");
 const projectRoute = require("./routes/project");
+
 // Middlewares
 app.use(logger("dev"));
 app.use(bodyParser.json());

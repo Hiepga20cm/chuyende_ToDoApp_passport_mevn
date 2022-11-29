@@ -13,13 +13,21 @@ const {
 const passport = require("passport");
 const passportConfig = require("../middlewares/passport");
 const { session } = require("passport");
+const authMiddleware = require("../middlewares/authMiddleware");
+
+route.route("/refreshToken").post(UserController.refreshToken);
 
 route.post(
   "/auth/google",
   passport.authenticate("google-token", { session: false }),
   UserController.authGoogle
 );
-
+route
+  .route("/auth/facebook")
+  .post(
+    passport.authenticate("facebook-token", { session: false }),
+    UserController.authFacebook
+  );
 route
   .route("/")
   .get(UserController.index)
@@ -41,6 +49,8 @@ route
   .route("/secret")
   .get(passport.authenticate("jwt", { session: false }), UserController.secret);
 
+route.route("/getAllUser").get(authMiddleware, UserController.getAllUser);
+route.route("/userCurrent").get(UserController.getUserCurrent);
 route
   .route("/:userID")
   .get(validateParam(schemas.idSchema, "userID"), UserController.getUser)
@@ -53,15 +63,6 @@ route
     validateParam(schemas.idSchema, "userID"),
     validateBody(schemas.userOptionalSchema),
     UserController.updateUser
-  );
-
-route
-  .route("/:userID/decks")
-  .get(validateParam(schemas.idSchema, "userID"), UserController.getUserDecks)
-  .post(
-    validateParam(schemas.idSchema, "userID"),
-    validateBody(schemas.deckSchema),
-    UserController.newUserDeck
   );
 
 module.exports = route;

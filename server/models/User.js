@@ -34,6 +34,11 @@ const UserSchema = new Schema(
       enum: ["local", "google", "facebook"],
       default: "local",
     },
+
+    avatar: {
+      type: String,
+      default: "",
+    },
   },
   {
     timestamps: true,
