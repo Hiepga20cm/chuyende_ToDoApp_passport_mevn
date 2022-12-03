@@ -1,5 +1,5 @@
 {
-  "name": "NodejsApiAuthentication",
+  "name": "nodejsapiauthentication",
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
@@ -17,6 +17,7 @@
     "express": "^4.17.1",
     "express-promise-router": "^3.0.3",
     "jsonwebtoken": "^8.5.1",
+    "mongodb": "^4.12.1",
     "mongoose": "^5.9.9",
     "passport": "^0.4.1",
     "passport-facebook-token": "^4.0.0",
@@ -28,5 +29,8 @@
   "devDependencies": {
     "morgan": "^1.10.0",
     "nodemon": "^2.0.3"
-  }
+  },
+  "description": "check lại file .env tẹ tạo project trên console google cloud lấy clientId với client Secret",
+  "keywords": [],
+  "author": ""
 }
