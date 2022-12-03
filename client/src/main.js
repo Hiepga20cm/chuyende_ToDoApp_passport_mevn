@@ -1,18 +1,14 @@
-import { createApp } from "vue";
-import { createPinia } from "pinia";
-
-import App from "./App.vue";
+import Vue from "vue";
 import router from "./router";
-import vue3GoogleLogin from "vue3-google-login";
-import "./assets/main.css";
+import { createApp } from "vue";
+import App from "./App.vue";
+import "./axios";
 
-const app = createApp(App);
+Vue.config.productionTip = false;
 
-app.use(vue3GoogleLogin, {
-  clientId:
-    "288535238405-jike4ee31n8rp6crhopjg9h6pacrm5i3.apps.googleusercontent.com",
-});
-app.use(createPinia());
-app.use(router);
+createApp(App).mount("#app");
 
-app.mount("#app");
+new Vue({
+    router,
+    render: (h) => h(App),
+}).$mount("#app");
