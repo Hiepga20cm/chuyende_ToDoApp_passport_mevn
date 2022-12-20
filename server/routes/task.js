@@ -7,7 +7,22 @@ const {
   validateParam,
   schemas,
 } = require("../helpers/routerHelpers");
+const authMiddleware = require("../middlewares/authMiddleware");
 
-route.route("/newTask").post(TaskController.newTask);
+route
+  .route("/newTask/:projectId")
+  .post(
+    authMiddleware,
+    validateParam(schemas.idSchema, "projectId"),
+    validateBody(schemas.newTaskSchema),
+    TaskController.newTask
+  );
+route
+  .route("/editTask/:projectId/:TaskId")
+  .patch(
+    authMiddleware,
+    validateBody(schemas.idSchema, "TaskId"),
+    TaskController.editTask
+  );
 
 module.exports = route;

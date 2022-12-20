@@ -7,7 +7,10 @@ const logger = require("morgan");
 const mongoClient = require("mongoose");
 const cors = require("cors");
 const { Database } = require("./configs");
-
+const https = require("https");
+const fs = require("fs");
+const path = require("path");
+// const sslcert = require("../ssl/certificate.crt");
 // setup connect mongodb by mongoose
 mongoClient
   .connect(
@@ -28,7 +31,7 @@ const app = express();
 //const deckRoute = require("./routes/deck");
 const userRoute = require("./routes/user");
 const projectRoute = require("./routes/project");
-
+const task = require("./routes/task");
 // Middlewares
 app.use(logger("dev"));
 app.use(bodyParser.json());
@@ -38,6 +41,7 @@ app.use(cors());
 app.use("/users", userRoute);
 app.use("/projects", projectRoute);
 // Routes
+app.use("/tasks", task);
 app.get("/", (req, res, next) => {
   return res.status(200).json({
     message: "Server is OK!",
@@ -66,4 +70,15 @@ app.use((err, req, res, next) => {
 
 // Start the server
 const port = app.get("port") || 3000;
-app.listen(port, () => console.log(`Server is listening on port ${port}`));
+const cert = fs.readFileSync(path.resolve(__dirname, "./ssl/certificate.crt"));
+const key = fs.readFileSync(path.resolve(__dirname, "./ssl/privatekey.key"));
+https
+  .createServer(
+    {
+      cert,
+      key,
+    },
+
+    app
+  )
+  .listen(port, () => console.log(`Server is listening on port ${port}`));

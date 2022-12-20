@@ -2,7 +2,8 @@ const Project = require("../models/Project");
 const JWT = require("jsonwebtoken");
 const newProject = async (req, res, next) => {
   try {
-    const newProject = new Project(req.value.body);
+    console.log(req.body);
+    const newProject = new Project(req.body);
     const checkNameProject = await Project.find({ Name: newProject.Name });
 
     if (checkNameProject.length > 0) {
@@ -18,8 +19,11 @@ const newProject = async (req, res, next) => {
 
 const getAllProjectOfUser = async (req, res, next) => {
   try {
-    const token = req.headers.token.split(" ")[1];
+    const token = req.headers.authorization.split(" ")[1];
+    console.log(token);
+    console.log(process.env.JWT_SECRET);
     const decodeToken = JWT.verify(token, process.env.JWT_SECRET);
+    console.log(decodeToken);
     const id = decodeToken.sub;
     const projects = await Project.find({
       $or: [{ Owner: id }, { Collaborator: [id] }],
@@ -31,8 +35,12 @@ const getAllProjectOfUser = async (req, res, next) => {
       .populate({
         path: "Collaborator",
         select: "-password",
+      })
+      .populate({
+        path: "TaskList",
+        populate: { path: "Collaborator", select: "-password" },
       });
-    return res.status(200).json({ success: true, projects });
+    return res.status(200).json({ success: true, data: projects });
   } catch (error) {
     console.log(error);
   }

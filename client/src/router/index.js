@@ -1,23 +1,35 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
-
+import { createRouter, createWebHistory } from "vue-router";
+import Login from "../views/LoginForm.vue";
+import Layout from "../components/Layout.vue";
+//import newFb from "../components/newFb.vue";
+import Facebook from "../components/Facebook.vue";
+//import DateCellRender from "../components/DateCellRender.vue";
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: '/',
-      name: 'home',
-      component: HomeView
+      path: "/layout",
+      name: "home",
+      component: () => Layout,
     },
     {
-      path: '/login',
-      name: 'login',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import('../views/AboutView.vue')
-    }
-  ]
-})
+      path: "/login",
+      name: "login",
+      component: () => Login,
+      meta: {
+        layout: () => Layout,
+      },
+    },
+    {
+      path: "/fb",
+      component: () => Facebook,
+    },
+    // {
+    //   path: "/date",
+    //   name: "date",
+    //   component: () => DateCellRender,
+    // },
+  ],
+});
 
-export default router
+export default router;
