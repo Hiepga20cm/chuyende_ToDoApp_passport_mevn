@@ -1,30 +1,31 @@
 <template>
-  <a-button type="primary" @click="showDrawer">Create Task</a-button>
+  <a-button type="primary" @click="showDrawer">Edit Project</a-button>
   <a-drawer
     v-model:visible="visible"
     class="custom-class"
     style="color: red"
-    title="Create Task"
+    title="Edit Project"
     placement="right"
     @after-visible-change="afterVisibleChange"
     width="50%"
+    destroyOnClose
   >
-    <FormCreateTaskVue
-      :ProjectId="this.ProjectId"
+    <FormEditProjectVue
+      :projectDetail="this.projectDetail"
       style="display: block; margin-right: 80px; margin-left: 1px"
       @updateData="$emit('update', $event)"
+      @updateProject="$emit('updateProject', $event)"
     />
   </a-drawer>
 </template>
 <script lang="ts">
 import { defineComponent, ref } from "vue";
-import FormCreateProjectVue from "./FormCreateProject.vue";
-import FormCreateTaskVue from "./FormCreateTask.vue";
+import FormEditProjectVue from "./FormEditProject.vue";
 export default defineComponent({
-  components: { FormCreateTaskVue },
+  components: { FormEditProjectVue },
   props: {
-    ProjectId: {
-      type: String,
+    projectDetail: {
+      type: Object,
     },
   },
   methods: {
@@ -33,6 +34,8 @@ export default defineComponent({
     },
   },
   setup(props, context) {
+    console.log(props.projectDetail);
+
     const visible = ref<boolean>(false);
 
     const afterVisibleChange = (bool: boolean) => {

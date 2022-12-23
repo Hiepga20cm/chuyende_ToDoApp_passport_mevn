@@ -13,7 +13,7 @@
         <input
           type="text"
           id="username"
-          placeholder="Username"
+          placeholder="Email"
           v-model="username"
         />
       </div>
@@ -47,6 +47,9 @@
         <button class="btn btn-primary pull-right" @click="login()">
           Login
         </button>
+        <button class="btn btn-primary pull-right" @click="signUp()">
+          Sign Up
+        </button>
       </div>
     </form>
   </div>
@@ -56,7 +59,7 @@
 import { GoogleLogin, googleTokenLogin } from "vue3-google-login";
 //import VFacebookLogin from "../components/FacebookLogin.vue";
 import Facebook from "../components/Facebook.vue";
-
+import router from "../router/index";
 import authApi from "../api/modules/auth";
 export default {
   name: "LoginForm",
@@ -82,14 +85,28 @@ export default {
     loginGoogle() {
       googleTokenLogin()
         .then((response) => {
-          authApi.googleAuth(response.access_token).then((responses) => {
-            localStorage.setItem("token", responses.token);
-            localStorage.setItem("refreshToken", responses.refreshToken);
-            console.log(responses);
-            localStorage.setItem("user", responses.User._id);
+          authApi.googleAuth(response.access_token).then(async (responses) => {
+            try {
+              localStorage.setItem("token", responses.token);
+
+              localStorage.setItem("refreshToken", responses.refreshToken);
+
+              localStorage.setItem("user", responses.User._id);
+              const token = localStorage.getItem("token");
+              const refreshToken = localStorage.getItem("refreshToken");
+              const user = localStorage.getItem("user");
+              if (token && refreshToken && user) {
+                await router.push({ path: "/layout" }).then(() => {
+                  location.reload(true);
+                });
+              }
+            } catch (error) {
+              console.log(error);
+            }
           });
         })
         .catch((err) => {
+          router.push({ path: "/" });
           alert(err);
         });
     },
@@ -100,11 +117,27 @@ export default {
     async login() {
       try {
         const response = await authApi.login(this.username, this.password);
-        localStorage.setItem("token", response.token);
-        localStorage.setItem("refreshToken", response.refreshToken);
+        console.log(response.response);
+        if (response) {
+          localStorage.setItem("token", response.token);
+          localStorage.setItem("refreshToken", response.refreshToken);
+          localStorage.setItem("user", response.User);
+          await router.push({ path: "/layout" }).then(() => {
+            location.reload(true);
+          });
+        } else {
+          await router.push({ path: "/" }).then(() => {
+            location.reload(true);
+          });
+        }
       } catch (error) {
-        console.log(error);
+        router.push({ path: "/" });
+        //console.log(error.response.data.message);
+        alert("Username or password is incorrect. Please try again.");
       }
+    },
+    signUp() {
+      router.push({ path: "/register" });
     },
     register() {
       alert("Coming soon ...");

@@ -6,6 +6,7 @@
 
 <script>
 import { accountService } from "../_services";
+
 export default {
   methods: {
     login: accountService.login,

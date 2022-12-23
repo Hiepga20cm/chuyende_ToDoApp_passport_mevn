@@ -18,11 +18,18 @@ route
     TaskController.newTask
   );
 route
-  .route("/editTask/:projectId/:TaskId")
+  .route("/editTask/:TaskId")
   .patch(
     authMiddleware,
-    validateBody(schemas.idSchema, "TaskId"),
+    validateParam(schemas.idSchema, "TaskId"),
     TaskController.editTask
+  );
+route
+  .route("/deleteTask/:TaskId")
+  .delete(
+     authMiddleware,
+    validateParam(schemas.idSchema, "TaskId"),
+    TaskController.deleteTask
   );
 
 module.exports = route;

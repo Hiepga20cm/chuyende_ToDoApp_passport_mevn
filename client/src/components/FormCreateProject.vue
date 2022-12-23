@@ -18,7 +18,7 @@
       label="Description"
       :rules="[{ type: 'string' }]"
     >
-      <a-input v-model:value="formState.project.Notes" />
+      <a-textarea v-model:value="formState.project.Notes" />
     </a-form-item>
     <a-form-item
       :name="['project', 'Collaborator']"
@@ -31,7 +31,7 @@
         mode="tags"
         style="width: 100%"
         :token-separators="[',']"
-        placeholder="Automatic tokenization"
+        placeholder="User"
         :options="list"
         @change="handleChange"
       ></a-select>
@@ -54,7 +54,7 @@ import userApi from "../api/modules/user";
 import type { SelectProps } from "ant-design-vue";
 import projectApi from "../api/modules/project";
 export default defineComponent({
-  setup() {
+  setup(props, context) {
     const users: any = ref({});
     let list: any = ref<SelectProps["options"]>();
 
@@ -108,17 +108,28 @@ export default defineComponent({
         Name: "",
         Notes: "",
         Owner: localStorage.getItem("user"),
-        Collaborator: "",
+        Collaborator: undefined,
         StartDate: undefined,
         EndDate: undefined,
       },
     });
-    const onFinish = (values: any) => {
-      console.log("Success:", values);
-      console.log(JSON.parse(JSON.stringify(values)));
-      const data = JSON.parse(JSON.stringify(values));
-      data.project.Owner = localStorage.getItem("user");
-      projectApi.newProject(data.project);
+    const onFinish = async (values: any) => {
+      try {
+        const data = await JSON.parse(JSON.stringify(values));
+        data.project.Owner = await localStorage.getItem("user");
+        const res: any = await projectApi.newProject(data.project);
+        if (res.success === true) {
+          const data = res.project;
+          for (let i = 0; i < data.Collaborator.length; i++) {
+            const res: any = await userApi.getUserById(data.Collaborator[i]);
+            data.Collaborator[i] = res.user;
+          }
+          context.emit("updateData", data);
+        }
+      } catch (error) {
+        alert(error.response.data.message);
+        console.log(error);
+      }
     };
 
     return {

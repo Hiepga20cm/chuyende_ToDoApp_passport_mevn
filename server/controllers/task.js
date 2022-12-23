@@ -25,16 +25,17 @@ const newTask = async (req, res, next) => {
       return res.status(200).json({ success: true, task: newTask });
     }
   } catch (error) {
-    return res.status(400).json({ message: error.message });
+    console.log("looix");
+    return res.status(400).json({ success: false, message: error.message });
   }
 };
 
 const editTask = async (req, res, next) => {
   try {
-    const editTask = req.body;
-    const projectId = req.params.projectId;
+    const newTask = req.value.body;
+    console.log(req.body);
+    console.log("be asdasd", req.value.body);
     const checkNameTask = await Task.find({
-      ProjectId: projectId,
       Name: newTask.Name,
     });
     if (checkNameTask.length > 0) {
@@ -42,13 +43,16 @@ const editTask = async (req, res, next) => {
         .status(200)
         .json({ success: false, message: "Tên đã tồn tại" });
     } else {
-      const editTask = await Task.findByIdAndUpdate(
-        req.params.TaskId,
-        req.body
+      const editTask = await Task.updateOne(
+        {
+          _id: req.params.TaskId,
+        },
+        newTask
       );
+      console.log(editTask);
       return res
         .status(200)
-        .json({ success: true, message: "update thành công" });
+        .json({ success: true, message: "update thành công", task: editTask });
     }
   } catch (error) {
     return res.status(400).json({ success: false, message: error.message });
@@ -57,7 +61,7 @@ const editTask = async (req, res, next) => {
 
 const deleteTask = async (req, res, next) => {
   try {
-    const deleteTask = await Task.deleteOne(req.params.TaskId);
+    const deleteTask = await Task.deleteOne({ _id: req.params.TaskId });
     if (deleteTask) {
       return res
         .status(200)
@@ -74,5 +78,5 @@ const deleteTask = async (req, res, next) => {
 module.exports = {
   newTask,
   editTask,
-  deleteTask
+  deleteTask,
 };

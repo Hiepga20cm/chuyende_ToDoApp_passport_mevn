@@ -113,8 +113,8 @@ const authGoogle = async (req, res, next) => {
 const getUser = async (req, res, next) => {
   try {
     const { userID } = req.value.params;
-    const user = await User.findById(userID);
-    return res.status(200).json({ user });
+    const user = await User.findById(userID).select("-password");
+    return res.status(200).json({ success: true, user: user });
   } catch (error) {
     console.log(error);
     return res.status(401).json({ success: false, message: error });
@@ -124,7 +124,7 @@ const getUser = async (req, res, next) => {
 const getUserCurrent = async (req, res, next) => {
   try {
     const token = req.headers.authorization.split(" ")[1];
-    console.log("123");
+
     const decodeToken = JWT.verify(token, process.env.JWT_SECRET);
     if (decodeToken) {
       console.log(decodeToken);
@@ -171,10 +171,11 @@ const signIn = async (req, res, next) => {
       success: true,
       token,
       refreshToken,
+      User: req.user._id,
       message: "Đăng nhập thành công",
     });
   } catch (error) {
-    console.log(error);
+    //  
     return res
       .status(401)
       .json({ success: false, message: "Tài khoản hoặc mật khẩu không đúng" });
@@ -182,22 +183,29 @@ const signIn = async (req, res, next) => {
 };
 
 const signUp = async (req, res, next) => {
-  const { firstName, lastName, email, password } = req.value.body;
+  try {
+    const { firstName, lastName, email, password } = req.value.body;
+    // console.log("req bo fy ne", req.value.body);
+    // Check if there is a user with the same user
+    const foundUser = await User.find({ email: email });
+    if (foundUser.length > 0) {
+      // console.log("2");
+      return res
+        .status(403)
+        .json({ success: false, message: "Email is already in use." });
+    } else {
+      const newUser = new User({ firstName, lastName, email, password });
+      newUser.save();
 
-  // Check if there is a user with the same user
-  const foundUser = await User.findOne({ email });
-  if (foundUser)
-    return res
-      .status(403)
-      .json({ error: { message: "Email is already in use." } });
+      // Encode a token
+      const token = encodedToken(newUser._id);
+      return res.status(201).json({ success: true, token });
+    }
+  } catch (error) {
+    console.log(error);
+  }
 
   // Create a new user
-  const newUser = new User({ firstName, lastName, email, password });
-  newUser.save();
-
-  // Encode a token
-  const token = encodedToken(newUser._id);
-  return res.status(201).json({ success: true, token });
 };
 
 const updateUser = async (req, res, next) => {

@@ -1,38 +1,44 @@
 <template>
-  <a-button type="primary" @click="showDrawer">Create Task</a-button>
+  <a type="primary" @click="showDrawer">Edit</a>
   <a-drawer
     v-model:visible="visible"
     class="custom-class"
     style="color: red"
-    title="Create Task"
+    title="Edit Task"
     placement="right"
     @after-visible-change="afterVisibleChange"
     width="50%"
+    destroyOnClose
   >
-    <FormCreateTaskVue
-      :ProjectId="this.ProjectId"
+    <FormEditTaskVue
+      :taskDetail="this.taskDT"
       style="display: block; margin-right: 80px; margin-left: 1px"
-      @updateData="$emit('update', $event)"
+      @updateTask="$emit('updateTask', $event)"
     />
   </a-drawer>
 </template>
 <script lang="ts">
 import { defineComponent, ref } from "vue";
-import FormCreateProjectVue from "./FormCreateProject.vue";
-import FormCreateTaskVue from "./FormCreateTask.vue";
+import { any } from "vue-types";
+import FormEditProjectVue from "./FormEditProject.vue";
+import FormEditTaskVue from "./FormEditTask.vue";
 export default defineComponent({
-  components: { FormCreateTaskVue },
+  components: { FormEditTaskVue },
   props: {
-    ProjectId: {
-      type: String,
+    taskDetail: {
+      type: Object,
     },
   },
-  methods: {
-    updateProjectDetail(data: any) {
-      console.log(data);
-    },
-  },
-  setup(props, context) {
+
+  setup(props: any, context) {
+    console.log("asdfasffg");
+
+    console.log(props.record);
+
+    const taskDT: any = props.taskDetail;
+
+    console.log("task", taskDT);
+
     const visible = ref<boolean>(false);
 
     const afterVisibleChange = (bool: boolean) => {
@@ -44,10 +50,16 @@ export default defineComponent({
     };
 
     return {
+      taskDT,
       visible,
       afterVisibleChange,
       showDrawer,
     };
+  },
+  methods: {
+    updateProjectDetail(data: any) {
+      console.log(data);
+    },
   },
 });
 </script>

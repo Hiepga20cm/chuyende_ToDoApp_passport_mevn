@@ -27,4 +27,12 @@ route
 route
   .route("/projectList")
   .get(authMiddleware, ProjectController.getAllProjectOfUser);
+
+route
+  .route("/deleteProject/:projectId")
+  .delete(authMiddleware, ProjectController.deleteProject);
+
+route
+  .route("/getProjectById/:projectId")
+  .get(authMiddleware, ProjectController.getProjectById);
 module.exports = route;

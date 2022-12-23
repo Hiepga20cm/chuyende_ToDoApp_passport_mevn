@@ -3,10 +3,11 @@ const Joi = require("@hapi/joi");
 const validateBody = (schema) => {
   return (req, res, next) => {
     const validatorResult = schema.validate(req.body);
-    console.log(validatorResult);
-    console.log(req.body);
+    // console.log(validatorResult.error[Error[ValidationError]]);
     if (validatorResult.error) {
-      return res.status(400).json(validatorResult.error);
+      return res
+        .status(400)
+        .json({ data: validatorResult.error, message: "invalid validation" });
     } else {
       if (!req.value) req.value = {};
       if (!req.value["params"]) req.value.params = {};
@@ -18,8 +19,8 @@ const validateBody = (schema) => {
 
 const validateParam = (schema, name) => {
   return (req, res, next) => {
+    console.log(req.params);
     const validatorResult = schema.validate({ param: req.params[name] });
-
     if (validatorResult.error) {
       console.log(validatorResult);
       return res.status(400).json(validatorResult.error);

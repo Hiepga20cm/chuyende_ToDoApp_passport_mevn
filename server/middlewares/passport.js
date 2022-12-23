@@ -69,15 +69,15 @@ passport.use(
           done(null, user, { message: "đăng nhập thành công" });
         }
       } catch (error) {
-        console.log(error);
+        // console.log(error);
         done(error, false);
       }
     }
   )
 );
 
-//Passport Google
 
+//Passport Google
 passport.use(
   new GoogleTokenStrategy(
     {
@@ -136,7 +136,6 @@ passport.use(
         const user = await User.findOne({
           authFacebookID: profile.id,
         });
-        
         if (user) return done(null, user);
         const checkEmail = await User.findOne({
           email: profile.emails[0].value,
@@ -157,9 +156,7 @@ passport.use(
             lastName: profile.name.familyName,
             avatar: profile.photos[0].value,
           });
-
           await newUser.save();
-
           done(null, newUser);
         }
       } catch (error) {

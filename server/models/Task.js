@@ -28,6 +28,10 @@ const TaskSchema = new Schema(
       type: Date,
       default: null,
     },
+    ProjectId: {
+      type: Schema.Types.ObjectId,
+      ref: "Project",
+    },
   },
   {
     timestamps: true,

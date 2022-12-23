@@ -1,3 +1,4 @@
+import { async } from "rxjs";
 import axiosClient from "../index";
 
 const authApi = {
@@ -22,6 +23,14 @@ const authApi = {
       const url = "/users/auth/facebook";
       const access_token = accessToken;
       return axiosClient.post(url, { access_token });
+    } catch (error) {
+      console.log(error);
+    }
+  },
+  signUp: async (firstName, lastName, email, password) => {
+    try {
+      const url = "/users/signUp";
+      return axiosClient.post(url, { firstName, lastName, email, password });
     } catch (error) {
       console.log(error);
     }

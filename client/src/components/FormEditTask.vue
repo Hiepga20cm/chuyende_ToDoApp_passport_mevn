@@ -7,40 +7,48 @@
     @finish="onFinish"
   >
     <a-form-item
-      :name="['project', 'Name']"
+      :name="['task', 'Name']"
       label="Name"
       :rules="[{ required: true }]"
     >
-      <a-input v-model:value="formState.project.Name" />
+      <a-input v-model:value="formState.task.Name" />
     </a-form-item>
     <a-form-item
-      :name="['project', 'Notes']"
+      :name="['task', 'Notes']"
       label="Description"
       :rules="[{ type: 'string' }]"
     >
-      <a-textarea v-model:value="formState.project.Notes" />
+      <a-input v-model:value="formState.task.Notes" />
     </a-form-item>
     <a-form-item
-      :name="['project', 'Collaborator']"
+      :name="['task', 'Collaborator']"
       label="Collaborator"
       :rules="[{ type: 'array' }]"
     >
       <!-- <a-input-number v-model:value="formState.project.Owner" /> -->
       <a-select
-        v-model:value="formState.project.Collaborator"
+        v-model:value="formState.task.Collaborator"
         mode="tags"
         style="width: 100%"
         :token-separators="[',']"
-        placeholder="Automatic tokenization"
+        placeholder="Select User"
         :options="list"
         @change="handleChange"
       ></a-select>
     </a-form-item>
-    <a-form-item :name="['project', 'StartDate']" label="StartDate">
-      <a-date-picker v-model:value="formState.project.StartDate" />
+    <a-form-item :name="['task', 'Status']" label="Status">
+      <a-select v-model:value="formState.task.Status" style="width: 120px">
+        <a-select-option value="todo">To do</a-select-option>
+        <a-select-option value="in_progress">In Progress</a-select-option>
+        <a-select-option value="done">Done</a-select-option>
+      </a-select>
     </a-form-item>
-    <a-form-item :name="['project', 'EndDate']" label="EndDate">
-      <a-date-picker v-model:value="formState.project.EndDate" />
+
+    <a-form-item :name="['task', 'StartDate']" label="StartDate">
+      <a-date-picker v-model:value="formState.task.StartDate" />
+    </a-form-item>
+    <a-form-item :name="['task', 'EndDate']" label="EndDate">
+      <a-date-picker v-model:value="formState.task.EndDate" />
     </a-form-item>
 
     <a-form-item :wrapper-col="{ ...layout.wrapperCol, offset: 8 }">
@@ -51,21 +59,28 @@
 <script lang="ts">
 import { defineComponent, reactive, ref, watch } from "vue";
 import userApi from "../api/modules/user";
+import dayjs, { Dayjs } from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
 import type { SelectProps } from "ant-design-vue";
 import projectApi from "../api/modules/project";
 import taskApi from "../api/modules/task";
-import { defineEmits } from "vue";
+dayjs.extend(relativeTime);
 export default defineComponent({
   props: {
-    ProjectId: {
-      type: String,
+    taskDetail: {
+      type: Object,
     },
   },
-  setup(props, context) {
+
+  setup(props: any, context) {
     const users: any = ref({});
     let list: any = ref<SelectProps["options"]>();
-    const emit = defineEmits();
+    console.log("asdaf", props.taskDetail);
 
+    const pr: any = props;
+    console.log("ssssddgh", pr);
+
+    const userOfGroup = ref([]);
     const getAllUser = async () => {
       try {
         const res: any = await userApi.getAllUser();
@@ -74,17 +89,33 @@ export default defineComponent({
           users._rawValue.length > 0
             ? users._rawValue.map((e: any) => ({
                 value: e._id,
-                label: e.firstName || "Unknown",
+                label: e.firstName + " " + e.lastName || "Unknown",
                 key: e._id,
               }))
             : [];
-        console.log("userListOption", userOption);
         list.value = userOption;
       } catch (error) {
         console.log(error);
       }
     };
     getAllUser();
+
+    const getUserOfProject = async (pr: any) => {
+      try {
+        const userDefault =
+          pr.taskDetail.Collaborator.length > 0
+            ? pr.taskDetail.Collaborator.map((e: any) => ({
+                value: e._id,
+                lable: e.firstName + " " + e.lastName || "Unknown",
+                key: e._id,
+              }))
+            : [];
+        userOfGroup.value = userDefault;
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    getUserOfProject(pr);
     const value1 = ref<string[]>([]);
     const handleChange1 = (value: []) => {
       console.log(`selected ${value}`);
@@ -112,41 +143,39 @@ export default defineComponent({
     };
 
     const formState = reactive({
-      project: {
-        Name: "",
-        Notes: "",
+      task: {
+        Name: pr.taskDetail.Name,
+        Notes: pr.taskDetail.Notes,
         Owner: localStorage.getItem("user"),
-        Collaborator: undefined,
-        StartDate: undefined,
-        EndDate: undefined,
+        Status: pr.taskDetail.Status,
+        Collaborator: userOfGroup,
+        StartDate: dayjs(pr.taskDetail.StartDate, "YYYY-MM-DD"),
+        EndDate: dayjs(pr.taskDetail.EndDate, "YYYY-MM-DD"),
       },
     });
     const onFinish = async (values: any) => {
       try {
-        console.log("Success:", values);
-        console.log(JSON.parse(JSON.stringify(values)));
-        const data = await JSON.parse(JSON.stringify(values));
-        data.project.Owner = await localStorage.getItem("user");
+        const data: any = await JSON.parse(JSON.stringify(values));
+        data.task.Owner = await localStorage.getItem("user");
+        const idTask: any = pr.taskDetail._id;
+        data.task._id = idTask;
 
-        const res: any = await taskApi.CreateTask(
-          props.ProjectId,
-          data.project
-        );
-
-        if (res.success === true) {
-          const data = res.task;
-          for (let i = 0; i < data.Collaborator.length; i++) {
-            const res: any = await userApi.getUserById(data.Collaborator[i]);
-            console.log(res);
-            data.Collaborator[i] = res.user;
+        for (let i = 0; i < data.task.Collaborator.length; i++) {
+          const user: any = data.task.Collaborator[i];
+          console.log("user", data.task.Collaborator[i]);
+          const res: any = await userApi.getUserById(user);
+          if (res.success === true) {
+            console.log(res.user);
           }
-          context.emit("updateData", data);
-        } else {
-          alert(res.message);
+          data.task.Collaborator[i] = res.user;
         }
+        context.emit("updateTask", data.task);
+        // }
+        // const res: any = await taskApi.EditTask(idTask, data.task);
+        // if (res.success === true) {
+        //   context.emit("updateTask", data.task);
+        // }
       } catch (error) {
-        alert(error.response.data.message);
-
         console.log(error);
       }
     };
@@ -171,13 +200,9 @@ export default defineComponent({
   },
   methods: {
     log: function (users: any) {
-      console.log("aaaaa");
-      console.log(users);
       console.log(JSON.parse(JSON.stringify(users)));
     },
-    submit: function (data: any) {
-      this.$emit(data);
-    },
+    dayjs,
   },
 });
 </script>
