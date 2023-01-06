@@ -8,6 +8,7 @@
     placement="right"
     @after-visible-change="afterVisibleChange"
     width="50%"
+    destroyOnClose
   >
     <FormCreateTaskVue
       :ProjectId="this.ProjectId"

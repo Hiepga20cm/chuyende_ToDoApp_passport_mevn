@@ -52,14 +52,24 @@ route
   .route("/:userID")
   .get(validateParam(schemas.idSchema, "userID"), UserController.getUser)
   .put(
+    authMiddleware,
     validateParam(schemas.idSchema, "userID"),
     validateBody(schemas.userSchema),
     UserController.replaceUser
   )
   .patch(
+    authMiddleware,
     validateParam(schemas.idSchema, "userID"),
     validateBody(schemas.userOptionalSchema),
     UserController.updateUser
+  );
+
+route
+  .route("/changePassword/:userId")
+  .patch(
+    authMiddleware,
+    validateParam(schemas.idSchema, "userId"),
+    UserController.changePassword
   );
 
 module.exports = route;

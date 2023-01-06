@@ -32,12 +32,11 @@
       <div class="checkbox-container">
         <a-row>
           <a-col :span="12">
-            <!-- <GoogleLogin :callback="loginGoogle" /> -->
             <button class="loginBtn loginBtn--google" @click="loginGoogle">
               Đăng nhập bằng Google
             </button>
           </a-col>
-          <!-- <VFacebookLogin /> -->
+
           <a-col :span="12">
             <Facebook />
           </a-col>

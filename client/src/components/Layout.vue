@@ -10,7 +10,36 @@
         bottom: 0,
       }"
     >
-      <!-- <div class="logo" /> -->
+      <a-modal
+        v-model:visible="visible"
+        title="Profile"
+        @ok="handleOk"
+        width="680px"
+      >
+        <div style="display: block; text-align: center">
+          <div v-if="this.userCurrent.avatar !== ''">
+            <a-avatar :size="64" :src="this.userCurrent.avatar" />
+          </div>
+          <div v-else-if="this.userCurrent.avatar === ''">
+            <a-avatar :size="64">{{
+              getFirstKey(this.userCurrent.lastName)
+            }}</a-avatar>
+          </div>
+          <span>{{ this.userCurrent.email }}</span
+          ><br />
+          <span>{{ this.userCurrent.createdAt }}</span>
+        </div>
+        <div
+          style="display: block"
+          v-if="
+            this.userCurrent.authGoogleID == null &&
+            this.userCurrent.authFacebookID == null
+          "
+        >
+          <FormChangePasswordVue :userId="this.userCurrent._id" />
+        </div>
+      </a-modal>
+
       <div style="display: inline-block">
         <div
           style="
@@ -44,19 +73,17 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 20px;
+            padding-left: 10px;
           "
         >
-          <CreateProject @update="addProject($event)" />
-          <a-button
-            style="display: block; margin-left: 30px"
-            type="primary"
-            :loading="iconLoading"
-            @click="enterIconLoading"
-          >
-            <template #icon style="width: 100%"> </template>
-            Logout
-          </a-button>
+          <CreateProject @update="addProject($event)" style="padding: 10px" />
+
+          <div style="display: block; margin-left: 30px" @click="showModal">
+            <Menu
+              :userCurrent="this.userCurrent"
+              :listNotification="this.listNotification"
+            />
+          </div>
         </div>
       </a-layout-header>
 
@@ -90,7 +117,9 @@ import projectApi from "../api/modules/project";
 import CreateProject from "./CreateProject.vue";
 import { defineComponent, ref } from "vue";
 import { PoweroffOutlined } from "@ant-design/icons-vue";
+import Menu from "./Menu.vue";
 import router from "../router";
+import FormChangePasswordVue from "./FormChangePassword.vue";
 interface DelayLoading {
   delay: number;
 }
@@ -103,8 +132,14 @@ import {
   TeamOutlined,
   ShopOutlined,
 } from "@ant-design/icons-vue";
+import userApi from "../api/modules/user";
+import { getFirstKey } from "../hook/upFirstKey";
+import noticeApi from "../api/modules/notice";
+
 export default defineComponent({
   components: {
+    FormChangePasswordVue,
+    Menu,
     UserOutlined,
     LaptopOutlined,
     NotificationOutlined,
@@ -118,6 +153,7 @@ export default defineComponent({
       isLoading: false,
       projects: {},
       pr: {},
+      //userCurrent: {},
     };
   },
 
@@ -136,6 +172,9 @@ export default defineComponent({
       router.push({ path: "/" });
     };
     const pro: any = ref({});
+    const userCurrent: any = ref({});
+    const listNotification: any = ref({});
+    // const avatar: any = null;
     const getAllProject = async () => {
       try {
         const res = await projectApi.getAllProject();
@@ -145,12 +184,41 @@ export default defineComponent({
         console.log(error);
       }
     };
+    const getUserCurrent = async () => {
+      try {
+        const res = await userApi.getUserCurrent();
+        userCurrent.value = res;
+        const listNotice = await noticeApi.getNotificationByUserId(
+          userCurrent.value._id
+        );
+        listNotification.value = listNotice;
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
     getAllProject();
+    getUserCurrent();
+    const visible = ref<boolean>(false);
+
+    const showModal = () => {
+      visible.value = true;
+    };
+
+    const handleOk = (e: MouseEvent) => {
+      console.log(e);
+      visible.value = false;
+    };
     return {
+      visible,
+      showModal,
+      handleOk,
       loading: ref(false),
       iconLoading,
       enterIconLoading,
       pro,
+      listNotification,
+      userCurrent,
       selectedKeys: ref<string[]>(["4"]),
       selectedKeys1: ref<string[]>(["2"]),
       selectedKeys2: ref<string[]>(["1"]),
@@ -159,6 +227,9 @@ export default defineComponent({
     };
   },
   methods: {
+    test1() {
+      console.log("test1");
+    },
     async setDetailProject(project: any) {
       try {
         this.pr = project;
@@ -191,6 +262,7 @@ export default defineComponent({
         console.log(error);
       }
     },
+    getFirstKey,
   },
 });
 </script>

@@ -24,5 +24,14 @@ const userApi = {
       console.log(error);
     }
   },
+  changePassword: async (data, userId) => {
+    try {
+      console.log(userId);
+      const url = `/users/changePassword/${userId}`;
+      return axiosClient.patch(url, data);
+    } catch (error) {
+      console.log(error);
+    }
+  },
 };
 export default userApi;

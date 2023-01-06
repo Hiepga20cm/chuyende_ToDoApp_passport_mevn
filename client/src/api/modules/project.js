@@ -42,6 +42,14 @@ const projectApi = {
       console.log(error);
     }
   },
+  getCollabotor: async (projectId) => {
+    try {
+      const url = `projects/getCollaborator/${projectId}`;
+      return axiosClient.get(url);
+    } catch (error) {
+      console.log(error);
+    }
+  },
 };
 
 export default projectApi;

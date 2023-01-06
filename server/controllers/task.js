@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
+const Notice = require("../models/Notice");
 const Project = require("../models/Project");
 const Task = require("../models/Task");
+const noticeController = require("./notice");
 
 const newTask = async (req, res, next) => {
   try {
@@ -22,6 +24,17 @@ const newTask = async (req, res, next) => {
       await Project.findByIdAndUpdate(projectId, {
         $push: { TaskList: id },
       });
+      if (newTask.Collaborator.length) {
+        await newTask.Collaborator.map(async (e) => {
+          const noticeData = new Notice({
+            userId: e,
+            description: `You have been assigned to task ${newTask.Name}`,
+            status: "NOT_CHECKED",
+            redirect: `/getProjectById/${projectId}`,
+          });
+          await noticeController.newNotice(noticeData);
+        });
+      }
       return res.status(200).json({ success: true, task: newTask });
     }
   } catch (error) {
@@ -32,28 +45,17 @@ const newTask = async (req, res, next) => {
 
 const editTask = async (req, res, next) => {
   try {
-    const newTask = req.value.body;
-    console.log(req.body);
-    console.log("be asdasd", req.value.body);
-    const checkNameTask = await Task.find({
-      Name: newTask.Name,
-    });
-    if (checkNameTask.length > 0) {
-      return res
-        .status(200)
-        .json({ success: false, message: "Tên đã tồn tại" });
-    } else {
-      const editTask = await Task.updateOne(
-        {
-          _id: req.params.TaskId,
-        },
-        newTask
-      );
-      console.log(editTask);
-      return res
-        .status(200)
-        .json({ success: true, message: "update thành công", task: editTask });
-    }
+    const newTask = req.body;
+
+    const editTask = await Task.updateOne(
+      {
+        _id: req.params.TaskId,
+      },
+      newTask
+    );
+    return res
+      .status(200)
+      .json({ success: true, message: "update thành công", task: editTask });
   } catch (error) {
     return res.status(400).json({ success: false, message: error.message });
   }

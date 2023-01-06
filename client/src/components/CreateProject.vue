@@ -8,6 +8,7 @@
     placement="right"
     @after-visible-change="afterVisibleChange"
     width="50%"
+    destroyOnClose
   >
     <FormCreateProjectVue
       style="display: block; margin-right: 80px; margin-left: 1px"

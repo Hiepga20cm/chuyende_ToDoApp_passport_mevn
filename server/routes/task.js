@@ -19,7 +19,7 @@ route
   );
 route
   .route("/editTask/:TaskId")
-  .patch(
+  .put(
     authMiddleware,
     validateParam(schemas.idSchema, "TaskId"),
     TaskController.editTask

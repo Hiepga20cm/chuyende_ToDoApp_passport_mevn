@@ -4,8 +4,6 @@ export const upFirstName = (str) => {
 };
 export const getFirstKey = (str) => {
   if (str) {
-    console.log(str);
-    console.log(str.split("")[0].toUpperCase());
     return str.split("")[0].toUpperCase();
   }
   return "";

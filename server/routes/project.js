@@ -35,4 +35,7 @@ route
 route
   .route("/getProjectById/:projectId")
   .get(authMiddleware, ProjectController.getProjectById);
+route
+  .route("/getCollaborator/:projectId")
+  .get(authMiddleware, ProjectController.getCollaborator);
 module.exports = route;

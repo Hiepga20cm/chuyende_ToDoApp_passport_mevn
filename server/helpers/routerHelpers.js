@@ -22,7 +22,7 @@ const validateParam = (schema, name) => {
     console.log(req.params);
     const validatorResult = schema.validate({ param: req.params[name] });
     if (validatorResult.error) {
-      console.log(validatorResult);
+      console.log('1',validatorResult);
       return res.status(400).json(validatorResult.error);
     } else {
       if (!req.value) req.value = {};

@@ -31,18 +31,10 @@ export default defineComponent({
   },
 
   setup(props: any, context) {
-    console.log("asdfasffg");
-
-    console.log(props.record);
-
     const taskDT: any = props.taskDetail;
-
-    console.log("task", taskDT);
-
     const visible = ref<boolean>(false);
 
     const afterVisibleChange = (bool: boolean) => {
-      console.log("visible", bool);
     };
 
     const showDrawer = () => {

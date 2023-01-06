@@ -65,16 +65,22 @@ export default defineComponent({
     const users: any = ref({});
     let list: any = ref<SelectProps["options"]>();
     const emit = defineEmits();
+    console.log(props);
 
     const getAllUser = async () => {
       try {
-        const res: any = await userApi.getAllUser();
-        users.value = res?.user;
+        // const res: any = await userApi.getAllUser();
+        // users.value = res?.user;
+        // console.log(users.value);
+        // console.log(res?.user);
+        const res2: any = await projectApi.getCollabotor(props.ProjectId);
+        users.value = res2?.data;
+
         const userOption =
           users._rawValue.length > 0
             ? users._rawValue.map((e: any) => ({
                 value: e._id,
-                label: e.firstName || "Unknown",
+                label: e.email || "Unknown",
                 key: e._id,
               }))
             : [];

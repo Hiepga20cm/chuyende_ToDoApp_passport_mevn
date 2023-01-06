@@ -1,9 +1,14 @@
 const Project = require("../models/Project");
 const JWT = require("jsonwebtoken");
 const Task = require("../models/Task");
+const Notice = require("../models/Notice");
+const noticeController = require("./notice");
+const mongoose = require("mongoose");
 const newProject = async (req, res, next) => {
   try {
     const newProject = new Project(req.body);
+    const id = new mongoose.Types.ObjectId();
+    newProject._id = id;
     const checkNameProject = await Project.find({
       Name: newProject.Name,
       Owner: newProject.Owner,
@@ -15,6 +20,18 @@ const newProject = async (req, res, next) => {
         .json({ success: false, message: "tên đã tồn tại" });
     } else {
       await newProject.save();
+
+      if (newProject.Collaborator.length) {
+        await newProject.Collaborator.map(async (e) => {
+          const noticeData = new Notice({
+            userId: e,
+            description: `You have been assigned to ${newProject.Name}`,
+            status: "NOT_CHECKED",
+            redirect: `/getProjectById/${id}`,
+          });
+          await noticeController.newNotice(noticeData);
+        });
+      }
       return res.status(201).json({ success: true, project: newProject });
     }
   } catch (error) {
@@ -25,13 +42,13 @@ const newProject = async (req, res, next) => {
 const getAllProjectOfUser = async (req, res, next) => {
   try {
     const token = req.headers.authorization.split(" ")[1];
-    console.log(token);
-    console.log(process.env.JWT_SECRET);
+    //console.log(token);
+    // console.log(process.env.JWT_SECRET);
     const decodeToken = JWT.verify(token, process.env.JWT_SECRET);
-    console.log(decodeToken);
+    //console.log(decodeToken);
     const id = decodeToken.sub;
     const projects = await Project.find({
-      $or: [{ Owner: id }, { Collaborator: [id] }],
+      $or: [{ Owner: id }, { Collaborator: { $in: [id] } }],
     })
       .populate({
         path: "Owner",
@@ -117,7 +134,26 @@ const getProjectById = async (req, res, next) => {
       .json({ success: false, message: "khong thay project" });
   }
 };
+const getCollaborator = async (req, res, next) => {
+  try {
+    const project = await Project.findById(req.params.projectId).populate({
+      path: "Collaborator",
+      select: "-password",
+    });
+    if (project) {
+      console.log(project);
+      return res
+        .status(200)
+        .json({ success: true, data: project.Collaborator });
+    } else {
+      return res.status(404).json({ success: false });
+    }
+  } catch (error) {
+    return res.status(404).json({ success: false });
+  }
+};
 module.exports = {
+  getCollaborator,
   deleteProject,
   newProject,
   editProject,

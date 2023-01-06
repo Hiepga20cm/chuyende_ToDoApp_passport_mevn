@@ -84,7 +84,7 @@ export default defineComponent({
           users._rawValue.length > 0
             ? users._rawValue.map((e: any) => ({
                 value: e._id,
-                label: e.firstName + " " + e.lastName || "Unknown",
+                label: e.email || "Unknown",
                 key: e._id,
               }))
             : [];
@@ -101,7 +101,7 @@ export default defineComponent({
           pr.projectDetail.Collaborator.length > 0
             ? pr.projectDetail.Collaborator.map((e: any) => ({
                 value: e._id,
-                lable: e.firstName + " " + e.lastName || "Unknown",
+                lable: e.email || "Unknown",
                 key: e._id,
               }))
             : [];

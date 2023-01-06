@@ -32,6 +32,7 @@ const app = express();
 const userRoute = require("./routes/user");
 const projectRoute = require("./routes/project");
 const task = require("./routes/task");
+const notice = require("./routes/notice");
 // Middlewares
 app.use(logger("dev"));
 app.use(bodyParser.json());
@@ -42,6 +43,7 @@ app.use("/users", userRoute);
 app.use("/projects", projectRoute);
 // Routes
 app.use("/tasks", task);
+app.use("/notices", notice);
 app.get("/", (req, res, next) => {
   return res.status(200).json({
     message: "Server is OK!",

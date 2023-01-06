@@ -83,13 +83,15 @@ export default defineComponent({
     const userOfGroup = ref([]);
     const getAllUser = async () => {
       try {
-        const res: any = await userApi.getAllUser();
-        users.value = res?.user;
+        const res2: any = await projectApi.getCollabotor(
+          props.taskDetail.ProjectId
+        );
+        users.value = res2?.data;
         const userOption =
           users._rawValue.length > 0
             ? users._rawValue.map((e: any) => ({
                 value: e._id,
-                label: e.firstName + " " + e.lastName || "Unknown",
+                label: e.email || "Unknown",
                 key: e._id,
               }))
             : [];
@@ -162,7 +164,7 @@ export default defineComponent({
 
         for (let i = 0; i < data.task.Collaborator.length; i++) {
           const user: any = data.task.Collaborator[i];
-          console.log("user", data.task.Collaborator[i]);
+          // console.log("user", data.task.Collaborator[i]);
           const res: any = await userApi.getUserById(user);
           if (res.success === true) {
             console.log(res.user);
@@ -170,6 +172,8 @@ export default defineComponent({
           data.task.Collaborator[i] = res.user;
         }
         context.emit("updateTask", data.task);
+        const res: any = await taskApi.EditTask(idTask, data.task);
+
         // }
         // const res: any = await taskApi.EditTask(idTask, data.task);
         // if (res.success === true) {

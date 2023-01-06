@@ -1,4 +1,3 @@
-import { accountService } from "../_services";
 
 const facebookAppId = "676813804003852";
 

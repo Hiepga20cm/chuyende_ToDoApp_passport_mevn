@@ -66,7 +66,7 @@ export default defineComponent({
           users._rawValue.length > 0
             ? users._rawValue.map((e: any) => ({
                 value: e._id,
-                label: e.firstName || "Unknown",
+                label: e.email || "Unknown",
                 key: e._id,
               }))
             : [];

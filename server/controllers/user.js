@@ -7,7 +7,7 @@
 
 const Deck = require("../models/Deck");
 const User = require("../models/User");
-
+const bcrypt = require("bcryptjs");
 const { JWT_SECRET, REFRESH_TOKEN } = require("../configs");
 const JWT = require("jsonwebtoken");
 
@@ -175,7 +175,7 @@ const signIn = async (req, res, next) => {
       message: "Đăng nhập thành công",
     });
   } catch (error) {
-    //  
+    //
     return res
       .status(401)
       .json({ success: false, message: "Tài khoản hoặc mật khẩu không đúng" });
@@ -226,8 +226,50 @@ const getAllUser = async (req, res, next) => {
     console.log(error);
   }
 };
+const changePassword = async (req, res, next) => {
+  try {
+    console.log(req.body);
+    const userId = req.params.userId;
+    const email = req.body.email;
+    const password = req.body.password;
+    const newPassword = req.body.newPassword;
+    const user = await User.findOne({ _id: userId, email: email });
+    //bcrypt.compare(newPassword, this.password);
+    console.log(user);
+    if (user) {
+      const checkPassword = await bcrypt.compare(password, user.password);
+      if (checkPassword) {
+        const salt = await bcrypt.genSalt(10);
+        console.log(salt);
+        const newPasswordHashed = await bcrypt.hash(newPassword, salt);
+        const change = await User.findByIdAndUpdate(userId, {
+          password: newPasswordHashed,
+        });
+        if (change) {
+          return res
+            .status(200)
+            .json({ success: true, message: "Change password successfully" });
+        }
 
+        return res
+          .status(200)
+          .json({ success: true, message: "Password changed successfully" });
+      } else {
+        return res
+          .status(400)
+          .json({ success: false, message: "Password is incorrect" });
+      }
+    } else {
+      return res
+        .status(404)
+        .json({ success: false, message: "Not Found User" });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
 module.exports = {
+  changePassword,
   getAllUser,
   refreshToken,
   getUser,

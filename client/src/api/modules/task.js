@@ -20,8 +20,9 @@ const taskApi = {
   },
   EditTask: async (TaskId, data) => {
     try {
+      console.log(data);
       const url = `/tasks/editTask/${TaskId}`;
-      return axiosClient.patch(url, data);
+      return axiosClient.put(url, data);
     } catch (error) {
       console.log(error);
     }
